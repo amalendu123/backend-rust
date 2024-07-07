@@ -6,8 +6,12 @@ mod models;
 mod db;
 
 #[get("/getblog")]
-async fn get_blog() -> impl Responder {
-   HttpResponse::Ok().body("Pizzas")
+async fn get_blog(db:Data<Database>) -> impl Responder {
+    let blogs = db.get_all_blogs().await;
+    match blogs{
+        Some(found_blog)=>HttpResponse::Ok().json(found_blog),
+        None=> HttpResponse::Ok().body("Error")
+    }
 }
 
 #[post("/postblog")]
@@ -42,7 +46,7 @@ async fn main() -> std::io::Result<()>{
             .service(postblog)
             .service(update_blog)
     })
-    .bind("127.0.0.1:8000")?
+    .bind("127.0.0.1:8080")?
     .run()
     .await
 }

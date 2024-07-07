@@ -2,6 +2,8 @@ use surrealdb::engine::remote::ws::{Client,Ws};
 use surrealdb::opt::auth::Root;
 use surrealdb::{Error,Surreal};
 
+use crate::models::Blog::blog;
+
 #[derive(Clone)]
 pub struct Database{
     pub Client:Surreal<Client>,
@@ -11,7 +13,7 @@ pub struct Database{
 
 impl Database{
     pub async fn init()->Result<Self,Error>{
-        let client = Surreal::new::<Ws>("127.0.0.1.8000").await?;
+        let client = Surreal::new::<Ws>("127.0.0.1:8000").await?;
         client.signin(Root{
             username:"root",
             password:"root"
@@ -23,5 +25,12 @@ impl Database{
             name_space:String::from("surreal"),
             db_name:String::from("blog")
         })
+    }
+    pub async fn get_all_blogs(&self)->Option<Vec<blog>> {
+        let result = self.Client.select("blog").await;
+        match result{
+            Ok(all_blog)=>Some(all_blog),
+            Err(_)=>None
+        }
     }
 }

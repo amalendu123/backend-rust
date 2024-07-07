@@ -17,3 +17,25 @@ pub struct getBlogRequest {
 pub struct update_blog_url{
     pub uuid:String,
 }
+
+
+#[derive(Validate,Deserialize,Serialize)]
+pub struct blog{
+    pub uuid: String,
+    pub Blog_title:String,
+    pub author:String,
+    pub content:String
+}
+
+impl blog {
+    pub fn new(
+        uuid:String,Blog_title:String,author:String,content:String
+    )->blog{
+        blog{
+            uuid,
+            Blog_title,
+            author,
+            content
+        }
+    }
+}
