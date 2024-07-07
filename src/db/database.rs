@@ -33,4 +33,15 @@ impl Database{
             Err(_)=>None
         }
     }
+
+    pub async  fn add_blog(&self,new_blog:blog) -> Option<blog> {
+        let create_blog = self.Client
+                                .create(("blog",new_blog.uuid.clone()))
+                                .content(new_blog)
+                                .await;
+                            match create_blog{
+                                Ok(created)=>created,
+                                Err(_)=>None
+                            }
+    }
 }

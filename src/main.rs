@@ -1,10 +1,12 @@
+use std::fmt::format;
+
 use actix_web::{get, patch, post, web::{Data, Json, Path}, App, HttpResponse, HttpServer, Responder};
 use db::Database;
-use models::{getBlogRequest, update_blog_url};
+use models::{getBlogRequest, update_blog_url, Blog::blog};
 use validator::Validate;
 mod models;
 mod db;
-
+use uuid;
 #[get("/getblog")]
 async fn get_blog(db:Data<Database>) -> impl Responder {
     let blogs = db.get_all_blogs().await;
@@ -15,12 +17,24 @@ async fn get_blog(db:Data<Database>) -> impl Responder {
 }
 
 #[post("/postblog")]
-async fn postblog(body: Json<getBlogRequest>) -> impl Responder{
+async fn postblog(body: Json<getBlogRequest>,db:Data<Database>) -> impl Responder{
     let is_valid = body.validate();
     match is_valid {
         Ok(_) => {
-            let blog = body.content.clone();
-            HttpResponse::Ok().body(format!("Blog entered is {}", blog))
+            let title= body.Blog_title.clone();
+            let author = body.author.clone();
+            let content = body.content.clone();
+
+            let mut buffer = uuid::Uuid::encode_buffer();
+            let new_uuid = uuid::Uuid::new_v4().simple().encode_lower(&mut buffer);
+
+            let new_blog = db.add_blog(blog::new(String::from(new_uuid),title,  author, content)).await;
+            
+            match new_blog{
+                Some(created)=> HttpResponse::Ok().body(format!("Created new blog")),
+                
+                None => HttpResponse::Ok().body("Error creating new blog"),
+            }
         },
         Err(_) => HttpResponse::BadRequest().body("Blog content required"),
     }
