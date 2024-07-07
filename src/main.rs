@@ -41,10 +41,15 @@ async fn postblog(body: Json<getBlogRequest>,db:Data<Database>) -> impl Responde
 }
 
 #[patch("/updateblog/{uuid}")]
-async fn update_blog(update_blog :Path<update_blog_url>) -> impl Responder{
+async fn update_blog(update_blog: Path<update_blog_url>, db: Data<Database>) -> impl Responder {
     let uuid = update_blog.into_inner().uuid;
-    HttpResponse::Ok().body(format!("update blog with {uuid}"))
+    match db.update_blog(uuid).await {
+        Ok(Some(updated)) => HttpResponse::Ok().body(format!("Updated the blog:")),
+        Ok(None) => HttpResponse::NotFound().body("Blog not found"),
+        Err(_) => HttpResponse::InternalServerError().body("Error updating the blog"),
+    }
 }
+
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()>{
