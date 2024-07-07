@@ -1,9 +1,20 @@
-use actix_web::{get, patch, post, web::post, App, HttpResponse, HttpServer, Responder};
+use actix_web::{get, patch, post, web::Json, App, HttpResponse, HttpServer, Responder};
+use models::getBlogRequest;
+use validator::Validate;
+mod models;
 
 #[get("/getblog")]
-async  fn get_blog() -> impl Responder{
-    HttpResponse::Ok().body("Blogs are available here")
+async fn get_blog(body: Json<getBlogRequest>) -> impl Responder {
+    let is_valid = body.validate();
+    match is_valid {
+        Ok(_) => {
+            let blog = body.content.clone();
+            HttpResponse::Ok().body(format!("Blog entered is {}", blog))
+        },
+        Err(_) => HttpResponse::BadRequest().body("Blog content required"),
+    }
 }
+
 #[post("/postblog")]
 async fn postblog() -> impl Responder{
     HttpResponse::Ok().body("Post a Blogs")

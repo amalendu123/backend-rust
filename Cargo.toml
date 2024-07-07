@@ -8,7 +8,7 @@ actix-web = "4.8.0"
 async-trait = "0.1.80"
 derive_more = "0.99.18"
 json = "0.12.4"
-serde = "1.0.203"
+serde = { version = "1.0.203", features = ["derive"] }
 surrealdb = "1.5.3"
 uuid = "1.9.1"
-validator = "0.18.1"
+validator = { version = "0.18.1", features = ["derive"] }
