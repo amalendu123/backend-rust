@@ -4,7 +4,12 @@ use validator::Validate;
 mod models;
 
 #[get("/getblog")]
-async fn get_blog(body: Json<getBlogRequest>) -> impl Responder {
+async fn get_blog() -> impl Responder {
+   HttpResponse::Ok().body("Pizzas")
+}
+
+#[post("/postblog")]
+async fn postblog(body: Json<getBlogRequest>) -> impl Responder{
     let is_valid = body.validate();
     match is_valid {
         Ok(_) => {
@@ -13,11 +18,6 @@ async fn get_blog(body: Json<getBlogRequest>) -> impl Responder {
         },
         Err(_) => HttpResponse::BadRequest().body("Blog content required"),
     }
-}
-
-#[post("/postblog")]
-async fn postblog() -> impl Responder{
-    HttpResponse::Ok().body("Post a Blogs")
 }
 
 #[patch("/updateblog/{uuid}")]
