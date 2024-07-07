@@ -12,3 +12,8 @@ pub struct getBlogRequest {
     #[validate(length(min = 1, message = "Content is required"))]
     pub content: String,
 }
+
+#[derive(Validate,Deserialize,Serialize)]
+pub struct update_blog_url{
+    pub uuid:String,
+}

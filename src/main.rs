@@ -1,7 +1,9 @@
-use actix_web::{get, patch, post, web::Json, App, HttpResponse, HttpServer, Responder};
-use models::getBlogRequest;
+use actix_web::{get, patch, post, web::{Data, Json, Path}, App, HttpResponse, HttpServer, Responder};
+use db::Database;
+use models::{getBlogRequest, update_blog_url};
 use validator::Validate;
 mod models;
+mod db;
 
 #[get("/getblog")]
 async fn get_blog() -> impl Responder {
@@ -21,14 +23,21 @@ async fn postblog(body: Json<getBlogRequest>) -> impl Responder{
 }
 
 #[patch("/updateblog/{uuid}")]
-async fn update_blog() -> impl Responder{
-    HttpResponse::Ok().body("update blog")
+async fn update_blog(update_blog :Path<update_blog_url>) -> impl Responder{
+    let uuid = update_blog.into_inner().uuid;
+    HttpResponse::Ok().body(format!("update blog with {uuid}"))
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()>{
-    HttpServer::new(||{
+
+    let db = Database::init()
+                                            .await
+                                            .expect("error connection to database");
+    let db_data = Data::new(db);
+    HttpServer::new(move ||{
         App::new()
+            .app_data(db_data.clone())
             .service(get_blog)  
             .service(postblog)
             .service(update_blog)
